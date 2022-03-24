@@ -281,11 +281,11 @@ We will be exploring files in the Synapse Analytics workspace's primary ADLS Gen
 
     ![The form is displayed as described.](media/assign-member.png "Add role assignment")
     
-    - A Select members pane appears, search and add the member and select.
+7. A Select members pane appears, search and add the member and select.
     
     ![The form is displayed as described.](media/selected-member.png "Add role assignment")
     
-7. After adding the Member, then select **Review + Assign**.
+8. After adding the Member, then select **Review + Assign**.
 
     ![The form is displayed as described.](media/review-assign-role.png "Add role assignment")
 
