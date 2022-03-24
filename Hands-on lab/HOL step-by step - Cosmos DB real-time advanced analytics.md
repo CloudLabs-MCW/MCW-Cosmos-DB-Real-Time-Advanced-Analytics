@@ -783,7 +783,7 @@ Now that we have added an Azure Cosmos DB Linked Service in Synapse Analytics, w
 
     ![The linked data blade is displayed.](media/data-load-streaming-dataframe.png "Load streaming DataFrame from container")
 
-3. Set the name of your notebook to `Stream processing` **(1)**, then select **Run all (2)** to run the notebook.
+3. Set the name of your notebook to `Stream processing` **(1)**, select the **Spark pool (2)**, then select **Run all (3)** to run the notebook.
 
     ![The Run all button is selected.](media/notebook-stream-processing.png "Stream processing notebook")
 
@@ -906,15 +906,17 @@ In this task, you will execute Synapse Notebooks to perform both near real-time 
 
 6. Execute all the cells in the **Real-time-scoring** notebook.
 
-7. Select the **Batch-scoring-analytical-store** notebook.
+7. After running all of the cells, **stop the session**.
+
+8. Select the **Batch-scoring-analytical-store** notebook.
 
     ![The notebook is selected.](media/notebook-batch-scoring.png "Batch-scoring-analytical-store")
 
-8. In the **Batch-scoring-analytical-store** notebook, follow the instructions to complete the remaining steps of this task. Execute all the cells in the **Batch-scoring-analytical-store** notebook.
+9. In the **Batch-scoring-analytical-store** notebook, follow the instructions to complete the remaining steps of this task. Execute all the cells in the **Batch-scoring-analytical-store** notebook.
 
     > In the cell that requires the Azure Machine Learning connection information, enter the same values you copied from the **Prepare batch scoring model** Azure ML notebook.
 
-9. If you receive an error stating "Session job is rejected because the session of the size specified cannot be allocated, due to core capacity being exceeded", then you need to stop the Spark session of the previous notebook.
+10. If you receive an error stating "Session job is rejected because the session of the size specified cannot be allocated, due to core capacity being exceeded", then you need to stop the Spark session of the previous notebook.
 
     ![The error is displayed.](media/session-job-rejected.png "Session job rejected")
 
