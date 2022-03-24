@@ -694,7 +694,7 @@ To do this you will create a Synapse Analytics pipeline with a copy activity. Sy
    | Azure Cosmos DB account name                   | _select the account named `woodgrove-db-SUFFIX`_                                   |
    | Database name           | _select `Woodgrove`_           |
 
-   ![The form is configured as described.](media/new-linked-service-cosmos-form.png "New linked service")
+   ![The form is configured as described.](media/testconnection.png "New linked service")
 
 ### Task 3: Create public data linked service
 
