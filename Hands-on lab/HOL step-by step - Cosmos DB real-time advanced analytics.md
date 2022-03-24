@@ -9,7 +9,7 @@ Hands-on lab step-by-step
 </div>
 
 <div class="MCWHeader3">
-September 2021
+March 2022
 </div>
 
 Information in this document, including URL and other Internet Web site references, is subject to change without notice. Unless otherwise noted, the example companies, organizations, products, domain names, e-mail addresses, logos, people, places, and events depicted herein are fictitious, and no association with any real company, organization, product, domain name, e-mail address, logo, person, place or event is intended or should be inferred. Complying with all applicable copyright laws is the responsibility of the user. Without limiting the rights under copyright, no part of this document may be reproduced, stored in or introduced into a retrieval system, or transmitted in any form or by any means (electronic, mechanical, photocopying, recording, or otherwise), or for any purpose, without the express written permission of Microsoft Corporation.
@@ -18,7 +18,7 @@ Microsoft may have patents, patent applications, trademarks, copyrights, or othe
 
 The names of manufacturers, products, or URLs are provided for informational purposes only and Microsoft makes no representations and warranties, either expressed, implied, or statutory, regarding these manufacturers or the use of the products with any Microsoft technologies. The inclusion of a manufacturer or product does not imply endorsement of Microsoft of the manufacturer or product. Links may be provided to third party sites. Such sites are not under the control of Microsoft and Microsoft is not responsible for the contents of any linked site or any link contained in a linked site, or any changes or updates to such sites. Microsoft is not responsible for webcasting or any other form of transmission received from any linked site. Microsoft is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement of Microsoft of the site or the products contained therein.
 
-© 2021 Microsoft Corporation. All rights reserved.
+© 2022 Microsoft Corporation. All rights reserved.
 
 Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/intellectualproperty/Trademarks/Usage/General.aspx> are trademarks of the Microsoft group of companies. All other trademarks are property of their respective owners.
 
@@ -32,7 +32,8 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
   - [Solution architecture](#solution-architecture)
   - [Requirements](#requirements)
   - [Exercise 1: Collecting streaming transaction data](#exercise-1-collecting-streaming-transaction-data)
-    - [Task 1: Ingesting streaming data into Cosmos DB](#task-1-ingesting-streaming-data-into-cosmos-db)
+    - [Task 1: Connect to the Lab VM](#task-1-connect-to-the-lab-vm)
+    - [Task 2: Ingesting streaming data into Cosmos DB](#task-2-ingesting-streaming-data-into-cosmos-db)
   - [Exercise 2: Understanding and preparing the transaction data](#exercise-2-understanding-and-preparing-the-transaction-data)
     - [Task 1: Configure access to the storage account from your workspace](#task-1-configure-access-to-the-storage-account-from-your-workspace)
     - [Task 2: Open Synapse Studio](#task-2-open-synapse-studio)
@@ -84,7 +85,7 @@ Woodgrove Bank, who provides payment processing services for commerce, is lookin
 
 In this hands-on lab session, you will implement a PoC of the data pipeline that could support the needs of Woodgrove Bank.
 
-At the end of this workshop, you will be better able to implement solutions that leverage the strengths of Cosmos DB in support of advanced analytics solutions that require high throughput ingest, low latency serving and global scale in combination with scalable machine learning, big data and real-time processing capabilities.
+At the end of this workshop, you will be better able to implement solutions that leverage the strengths of Cosmos DB in support of advanced analytics solutions that require high throughput ingest, low latency serving and global scale in combination with scalable machine learning, big data, and real-time processing capabilities.
 
 ## Overview
 
@@ -110,8 +111,15 @@ Finally, Azure Key Vault is used to securely store secrets, such as account keys
 
 ## Requirements
 
-1. Microsoft Azure subscription (non-Microsoft subscription, must be a pay-as-you-go subscription).
-2. Power BI pro license (optional)
+- Microsoft Azure subscription (non-Microsoft subscription, must be a pay-as-you-go subscription).
+- Power BI pro license (optional)
+- Local machine or a virtual machine configured with (**complete the day before the lab!**):
+  - Visual Studio Community 2019 or greater.
+    - <https://www.visualstudio.com/vs/>
+  - Azure development workload for Visual Studio.
+    - <https://docs.microsoft.com/azure/azure-functions/functions-develop-vs#prerequisites>
+  - .NET 5.0 or greater.
+    - <https://www.microsoft.com/net/download/windows>
 
 ## Exercise 1: Collecting streaming transaction data
 
@@ -119,7 +127,46 @@ Duration: 30 minutes
 
 In this exercise, you will configure a payment transaction generator to write real-time streaming online payments to both Event Hubs and Azure Cosmos DB.
 
-### Task 1: Ingesting streaming data into Cosmos DB
+### Task 1: Connect to the Lab VM
+
+In this task, you create an RDP connection to your Lab virtual machine (VM).
+
+1. In the [Azure portal](https://portal.azure.com), select **Resource groups** from the Azure services list.
+
+   ![Resource groups is highlighted in the Azure services list.](media/azure-services-resource-groups.png "Azure services")
+
+2. Select the **hands-on-lab-SUFFIX** resource group from the list.
+
+   ![The "hands-on-lab-SUFFIX" resource group is highlighted.](./media/resource-groups.png "Resource groups list")
+
+3. In the list of resources within your resource group, select the **LabVM Virtual machine** resource.
+
+   ![The list of resources in the hands-on-lab-SUFFIX resource group are displayed, and LabVM is highlighted.](./media/resource-group-resources-labvm.png "LabVM in resource group list")
+
+4. On your LabVM blade, select **Connect** and **RDP** from the top menu.
+
+   ![The LabVM blade is displayed, with the Connect button highlighted in the top menu.](./media/connect-vm-rdp.png "Connect to Lab VM")
+
+5. On the Connect to virtual machine blade, select **Download RDP File**, then open the downloaded RDP file.
+
+   ![The Connect to virtual machine blade is displayed, and the Download RDP File button is highlighted.](./media/connect-to-virtual-machine.png "Connect to virtual machine")
+
+6. Select **Connect** on the Remote Desktop Connection dialog.
+
+   ![In the Remote Desktop Connection Dialog Box, the Connect button is highlighted.](./media/remote-desktop-connection.png "Remote Desktop Connection dialog")
+
+7. Enter the following credentials when prompted, and then select **OK**:
+
+   - **User name**: demouser
+   - **Password**: Password.1!!
+
+   ![The credentials specified above are entered into the Enter your credentials dialog.](media/rdc-credentials.png "Enter your credentials")
+
+8. Select **Yes** to connect if prompted that the remote computer's identity cannot be verified.
+
+   ![In the Remote Desktop Connection dialog box, a warning states that the remote computer's identity cannot be verified and asks if you want to continue anyway. At the bottom, the Yes button is highlighted.](./media/remote-desktop-connection-identity-verification-labvm.png "Remote Desktop Connection dialog")
+
+### Task 2: Ingesting streaming data into Cosmos DB
 
 In this task, you will configure Cosmos DB's time-to-live (TTL) settings to On with no default. This will allow the data generator to expire, or delete, the ingested messages after any desired period of time by setting the TTL value (object property of `ttl`) on individual messages as they are sent.
 
@@ -149,13 +196,13 @@ Next, you will configure the payment transaction data generator project by compl
 
     ![The URI and Primary Key for Cosmos DB are highlighted.](media/cosmos-db-settings-keys-uri-primary-key.png "The URI and Primary Key for Cosmos DB are highlighted.")
 
-8. Open File Explorer on your machine or VM and navigate to the location you extracted the MCW repo .zip file to (C:\\CosmosMCW\\).
+8. Open File Explorer on your LabVM and navigate to `C:\CosmosMCW\`.
 
 9. Open **TransactionGenerator.sln** in the `Hands-on lab\lab-files\TransactionGenerator` directory. This will open the solution in Visual Studio.
 
     ![Screenshot of the solution folder with the TransactionGenerator.sln file selected.](media/solution-folder.png 'File Explorer')
 
-    > **Note**: If you are asked to upgrade the solution, which may occur if you are using Visual Studio 2019, select **OK**.
+    > **Note**: If you are prompted to sign in to Visual Studio, sign in with the Microsoft account you used to sign in to Azure for this lab. The VM uses the Community addition of Visual Studio which does not require a paid license.
 
 10. Double-click `appsettings.json` in the Solution Explorer to open it. This file contains the settings used by the console app to connect to your Azure services and to configure application behavior settings. The console app is programmed to either use values stored in this file, or within the machine's environment variables. This makes you capable of distributing the executable or containerizing it and passing in environment variables via the command line.
 
@@ -237,7 +284,7 @@ Next, you will configure the payment transaction data generator project by compl
 
     - Inserted line shows successful inserts in this batch and throughput for writes/second with RU/s usage and estimated monthly ingestion rate added to Cosmos DB statistics.
     - Total elapsed time: Running total of time taken to process all documents.
-    - Succeeded shows number of accumulative successful inserts to the service.
+    - Succeeded shows the number of accumulative successful inserts to the service.
     - Pending are items in the bulkhead queue. This amount will continue to grow if the service is unable to keep up with demand.
     - Accumulative failed requests that encountered an exception.
 
@@ -273,9 +320,13 @@ We will be exploring files in the Synapse Analytics workspace's primary ADLS Gen
 
     ![The add button is highlighted.](media/role-assignments-add-button.png "Add")
 
-5. In the add role assignment form, select the **Storage Blob Data Contributor** role, search for and select your Azure user account, then select **Save**.
+5. In the add role assignment form, select the **Storage Blob Data Contributor** role, then select **Next**.
 
-    ![The form is displayed as described.](media/add-role-assignment-form.png "Add role assignment")
+    ![The Storage Blob Data Contributor role is selected.](media/add-role-assignment-form1.png "Add role assignment")
+
+6. Select **+ Select members**, then search for and select your Azure user account, then select **Review + assign**.
+
+    ![The form is displayed as described.](media/add-role-assignment-form2.png "Add role assignment")
 
 ### Task 2: Open Synapse Studio
 
@@ -289,7 +340,7 @@ We will be exploring files in the Synapse Analytics workspace's primary ADLS Gen
 
 ### Task 3: Upload historical data
 
-Woodgrove Bank provided historical transaction data. We want to explore this data using Synapse Notebooks, and we want to use the data from Azure Machine Learning later on for model training. In this task, you will upload the historical files to the Synapse Analytics primary ADLS Gen2 account.
+Woodgrove Bank provided historical transaction data. We want to explore this data using Synapse Notebooks, and we want to use the data from Azure Machine Learning later for model training. In this task, you will upload the historical files to the Synapse Analytics primary ADLS Gen2 account.
 
 1. Navigate to the **Data** hub.
 
@@ -313,7 +364,7 @@ Woodgrove Bank provided historical transaction data. We want to explore this dat
 
 ### Task 4: Create Synapse Notebook to explore historical data
 
-Data preparation is an important step in the data engineering process. Before using data to create machine learning models, it is important to understand the data, and determine what features of the data set will be valuable for your intended purposes. To assist with this, Woodgrove has provided a CSV file contain some of its historical transactions for exploration.
+Data preparation is an important step in the data engineering process. Before using data to create machine learning models, it is important to understand the data, and determine what features of the data set will be valuable for your intended purposes. To assist with this, Woodgrove has provided a CSV file containing some of its historical transactions for exploration.
 
 In this notebook, you will explore this raw transaction data provided by Woodgrove to gain a better understanding of the types of transformations that need to be performed on the data to prepare it for use in building and training a machine learning model to detect fraud.
 
@@ -321,7 +372,7 @@ In this notebook, you will explore this raw transaction data provided by Woodgro
 
     ![The file is highlighted and the New notebook menu item is selected.](media/untagged-new-notebook.png "New notebook")
 
-2. Update the cell to uncomment the `, header=True` line by removing the two pound symbols at the beginning of the line **(`##`)** **(1)**. Make sure the notebook is attached to **SparkPool01 (2)**, then select **Run all (3)**. It will take a few minutes to run this notebook the first time since the serverless Apache Spark pool needs start.
+2. Update the cell to uncomment the `, header=True` line by removing the two pound symbols at the beginning of the line **(`##`)** **(1)**. Make sure the notebook is attached to **SparkPool01 (2)**, then select **Run all (3)**. It will take a few minutes to run this notebook the first time since the serverless Apache Spark pool needs to start.
 
     ![The notebook is displayed.](media/untagged-transactions-notebook-run.png "Notebook")
 
@@ -398,7 +449,7 @@ Woodgrove has provided you with a list of possible `cvvVerifyResult` values and 
     +---------------+------+
     ```
 
-    There are two interesting things to note for the values in the `cvvVerifyResult` field:
+    There are two interesting things to note about the values in the `cvvVerifyResult` field:
 
     1. We have some rows with empty values, which, according to the values listed provided by Woodgrove, indicates a failed transaction. For our fraud detection model, we are only concerned with completed transactions, so you might consider dropping rows where the `cvvVerifyResult` is empty. The count allows us to have some insight into the impact this will have on the size of our dataset.
 
@@ -771,11 +822,13 @@ Now that we have added an Azure Cosmos DB Linked Service in Synapse Analytics, w
 
     ![The linked data blade is displayed.](media/data-load-streaming-dataframe.png "Load streaming DataFrame from container")
 
-3. Set the name of your notebook to `Stream processing` **(1)**, then select **Run all (2)** to run the notebook.
+3. Set the name of your notebook to `Stream processing` **(1)**, select the **Spark pool (2)**, then select **Run all (3)** to run the notebook.
 
     ![The Run all button is selected.](media/notebook-stream-processing.png "Stream processing notebook")
 
-    The first cell contains auto-generated code **(3)** that populates a new DataFrame from the Azure Cosmos DB change feed stream from the `transactions` container. Notice that the `format` value is set to `cosmos.oltp`. This specifies that we are connecting to the transactional store instead of the analytical store. The `spark.cosmos.changeFeed.startFromTheBeginning` option ensures we process all the data streamed into the container.
+    > **Note**: We are currently using Spark 2.4. In this case, use the default generated code.
+
+    The first cell contains auto-generated code **(4)** that populates a new DataFrame from the Azure Cosmos DB change feed stream from the `transactions` container. Notice that the `format` value is set to `cosmos.oltp`. This specifies that we are connecting to the transactional store instead of the analytical store. The `spark.cosmos.changeFeed.startFromTheBeginning` option ensures we process all the data streamed into the container.
 
     > The initial run of this notebook will take time while the Spark pool starts.
 
@@ -894,15 +947,17 @@ In this task, you will execute Synapse Notebooks to perform both near real-time 
 
 6. Execute all the cells in the **Real-time-scoring** notebook.
 
-7. Select the **Batch-scoring-analytical-store** notebook.
+7. After running all the cells, **stop the session**.
+
+8. Select the **Batch-scoring-analytical-store** notebook.
 
     ![The notebook is selected.](media/notebook-batch-scoring.png "Batch-scoring-analytical-store")
 
-8. In the **Batch-scoring-analytical-store** notebook, follow the instructions to complete the remaining steps of this task. Execute all the cells in the **Batch-scoring-analytical-store** notebook.
+9. In the **Batch-scoring-analytical-store** notebook, follow the instructions to complete the remaining steps of this task. Execute all the cells in the **Batch-scoring-analytical-store** notebook.
 
     > In the cell that requires the Azure Machine Learning connection information, enter the same values you copied from the **Prepare batch scoring model** Azure ML notebook.
 
-9. If you receive an error stating "Session job is rejected because the session of the size specified cannot be allocated, due to core capacity being exceeded", then you need to stop the Spark session of the previous notebook.
+10. If you receive an error stating "Session job is rejected because the session of the size specified cannot be allocated, due to core capacity being exceeded", then you need to stop the Spark session of the previous notebook.
 
     ![The error is displayed.](media/session-job-rejected.png "Session job rejected")
 
@@ -920,7 +975,7 @@ In this exercise, you create SQL views to query data in the analytical store usi
 
 The SQL views require the Azure Cosmos DB account name and account key.
 
-1. Navigate to your Azure Cosmos DB account in the Azure portal, then select **Keys** in the left-hand menu **(1)**, then copy the **Primary Key** value **(2)** and save it to Notepad or similar for later reference. Copy the Azure Cosmos DB **account name** in the upper-left corner **(3)** and also save it to Notepad or similar text editor for later.
+1. Navigate to your Azure Cosmos DB account in the Azure portal, then select **Keys** in the left-hand menu **(1)**, then copy the **Primary Key** value **(2)** and save it to Notepad or similar for later reference. Copy the Azure Cosmos DB **account name** in the upper-left corner **(3)** and save it to Notepad or similar a text editor for later.
 
     ![The primary key is highlighted.](media/cosmos-keys.png "Keys")
 
@@ -949,7 +1004,7 @@ The SQL views require the Azure Cosmos DB account name and account key.
     GO
     ```
 
-4. Replace the SQL query with the following to create a secure server credential to store the Azure Cosmos DB account key. This credential will be used by all of the queries that follow to enable secure connectivity to the account. Replace **`YOUR_ACCOUNT_KEY`** with the Azure Cosmos DB Primary Key value you copied in Task 1 above.
+4. Replace the SQL query with the following to create a secure server credential to store the Azure Cosmos DB account key. This credential will be used by all the queries that follow to enable secure connectivity to the account. Replace **`YOUR_ACCOUNT_KEY`** with the Azure Cosmos DB Primary Key value you copied in Task 1 above.
 
     ```sql
     CREATE CREDENTIAL WoodgroveCosmosDbCredential
@@ -1899,11 +1954,11 @@ In this exercise, you will use the data generator to send data to both Event Hub
     - Processing time: Shows whether the processing time for the past 1,000 requested inserts is faster or slower than the other service.
     - Total elapsed time: Running total of time taken to process all documents.
     - If this value continues to grow higher for Cosmos DB vs. Event Hubs, that is a good indicator that the Cosmos DB requests are being throttled. Consider increasing the RU/s for the container.
-    - Succeeded shows number of accumulative successful inserts to the service.
+    - Succeeded shows the number of accumulative successful inserts to the service.
     - Pending are items in the bulkhead queue. This amount will continue to grow if the service is unable to keep up with demand.
     - Accumulative failed requests that encountered an exception.
 
-36. Open each of the three Event Hubs namespaces you have created for this lab. You should see an equal number of messages that were sent to each. The graph is shown on the bottom of the Overview blade. Select the **Messages** metric above the graph to view the number of messages received. The screenshot below is of the UK South Event Hub:
+36. Open each of the three Event Hubs namespaces you have created for this lab. You should see an equal number of messages that were sent to each. The graph is shown at the bottom of the Overview blade. Select the **Messages** metric above the graph to view the number of messages received. The screenshot below is of the UK South Event Hub:
 
     ![The Messages metric is selected for the UK South Event Hubs namespace.](media/uk-south-metrics.png 'Event Hubs Overview blade')
 
@@ -1913,7 +1968,7 @@ In this exercise, you will use the data generator to send data to both Event Hub
 
 Given the requirements provided by the customer, Azure Cosmos DB is the best choice for ingesting data for this PoC. Azure Cosmos DB allows for more flexible, and longer, TTL (message retention) than Event Hubs, which is capped at 7 days, or 4 weeks when you contact Microsoft to request the extra capacity. Another option for Event Hubs is to use Event Hubs Capture to simultaneously save ingested data to Blob Storage or Azure Data Lake Store for longer retention and cold storage. However, this will require additional development, including automatic clearing of the data after a period of time. In addition, Woodgrove Bank wanted to be able to easily query and replay the transactional data during the 60-day message retention period, from a database. Setting the TTL on the documents to 60 days keeps them in the Azure Cosmos DB transactional store for 60 days, where they can replay the transactions flowing through the change feed. However, with the addition of the analytical store that is enabled through Synapse Link, all data gets automatically copied to a low-cost Azure storage account in columnar format, giving Woodgrove easy access to all their data, regardless of the transactional store's TTL value, from within Synapse Analytics. Since these queries are executed against the analytical store, they do not use any RU/s allocated to the transaction store.
 
-Finally, the requirement to synchronize/write the ingested data to multiple regions, which could grow at any time, makes Azure Cosmos DB a more favorable choice. As you can see, there are more steps required to send data to additional regions using Event Hubs, since you have to provision new namespaces and Event Hub instances in each region. You would also have to account for all those instances on the consuming side, which we will not cover in this lab for sake of time. The ability to read/write to multiple regions by adding and removing them at will with no code or changes required is a great value that Azure Cosmos DB adds. Plus, the fact that Azure Cosmos DB will be used in this solution for serving batch-processed fraudulent data on a global scale means that Azure Cosmos DB can be used to meet both the data ingest and delivery needs with no additional services, like Event Hubs, required.
+Finally, the requirement to synchronize/write the ingested data to multiple regions, which could grow at any time, makes Azure Cosmos DB a more favorable choice. As you can see, there are more steps required to send data to additional regions using Event Hubs, since you have to provision new namespaces and Event Hub instances in each region. You would also have to account for all those instances on the consuming side, which we will not cover in this lab for the sake of time. The ability to read/write to multiple regions by adding and removing them at will with no code or changes required is a great value that Azure Cosmos DB adds. Plus, the fact that Azure Cosmos DB will be used in this solution for serving batch-processed fraudulent data on a global scale means that Azure Cosmos DB can be used to meet both the data ingest and delivery needs with no additional services, like Event Hubs, required.
 
 
 ## After the hands-on lab
