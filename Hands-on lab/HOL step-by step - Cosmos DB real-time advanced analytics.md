@@ -155,7 +155,7 @@ Next, you will configure the payment transaction data generator project by compl
 
     ![Screenshot of the solution folder with the TransactionGenerator.sln file selected.](media/solution-folder.png 'File Explorer')
 
-    > **Note**: If you are asked to upgrade the solution, which may occur if you are using Visual Studio 2019, select **OK**.
+    > **Note**: If you are prompted to sign in to Visual Studio, sign in with the Microsoft account you used to sign in to Azure for this lab. The VM uses the Community addition of Visual Studio which does not require a paid license.
 
 10. Double-click `appsettings.json` in the Solution Explorer to open it. This file contains the settings used by the console app to connect to your Azure services and to configure application behavior settings. The console app is programmed to either use values stored in this file, or within the machine's environment variables. This makes you capable of distributing the executable or containerizing it and passing in environment variables via the command line.
 
@@ -281,11 +281,11 @@ We will be exploring files in the Synapse Analytics workspace's primary ADLS Gen
 
     ![The form is displayed as described.](media/assign-member.png "Add role assignment")
     
-    - A Select members pane appears, search and add the member and select.
+7. A Select members pane appears, search and add the member and select.
     
     ![The form is displayed as described.](media/selected-member.png "Add role assignment")
     
-7. After adding the Member, then select **Review + Assign**.
+8. After adding the Member, then select **Review + Assign**.
 
     ![The form is displayed as described.](media/review-assign-role.png "Add role assignment")
 
@@ -632,14 +632,18 @@ In this task, you will use a notebook to prepare a model used to detect suspicio
 1. Navigate back to **Notebooks** and select the **Prepare batch scoring model.ipynb** notebook.
 
     ![The batch scoring notebook is highlighted.](media/select-batch-notebook.png "Notebooks")
+    
+2. Make sure you select **Kernel Idel** as **Python 3.6- Azure ML** before proceeding with next step.
 
-2. Open the context menu **(1)** and select **Editors (2) > Edit in Jupyter (3)** to open the notebook in the Jupyter editor, which provides an enhanced notebook experience.
+    ![](media/AzureML1.png)
+
+3. Open the context menu **(1)** and select **Editors (2) > Edit in Jupyter (3)** to open the notebook in the Jupyter editor, which provides an enhanced notebook experience.
 
     ![The edit in Jupyter menu item is highlighted.](media/edit-in-jupyter-2.png "Edit in Jupyter")
 
-3. **Run** each cell in the notebook. You can select a cell and enter **Shift+Enter** to execute the cell and advance to the next one. Be sure to read and understand each cell and descriptions throughout the notebook.
+4. **Run** each cell in the notebook. You can select a cell and enter **Shift+Enter** to execute the cell and advance to the next one. Be sure to read and understand each cell and descriptions throughout the notebook.
 
-4. **Copy the output of the last cell** of the notebook and save it to Notebook or similar text editor for a later exercise. The output contains information for connecting to your Azure Machine Learning workspace from a Synapse notebook. The output will look similar to the following:
+5. **Copy the output of the last cell** of the notebook and save it to Notebook or similar text editor for a later exercise. The output contains information for connecting to your Azure Machine Learning workspace from a Synapse notebook. The output will look similar to the following:
 
     ```python
     subscription_id = '0a1b2c3d-0a1b-0a1b-0a1b-0a1b2c3d4e5f'
@@ -711,7 +715,7 @@ To do this you will create a Synapse Analytics pipeline with a copy activity. Sy
    | SAS URL           | `https://solliancepublicdata.blob.core.windows.net/mcw-cosmosdb`                         |
    | SAS token                   | _enter `''`_                                   |
 
-   ![The form is configured as described.](media/new-linked-service-blob-form.png "New linked service")
+   ![The form is configured as described.](media/testconnection.png "New linked service")
 
 ### Task 4: Create copy pipeline
 
@@ -779,7 +783,7 @@ Now that we have added an Azure Cosmos DB Linked Service in Synapse Analytics, w
 
     ![The linked data blade is displayed.](media/data-load-streaming-dataframe.png "Load streaming DataFrame from container")
 
-3. Set the name of your notebook to `Stream processing` **(1)**, then select **Run all (2)** to run the notebook.
+3. Set the name of your notebook to `Stream processing` **(1)**, select the **Spark pool (2)**, then select **Run all (3)** to run the notebook.
 
     ![The Run all button is selected.](media/notebook-stream-processing.png "Stream processing notebook")
 
@@ -902,15 +906,17 @@ In this task, you will execute Synapse Notebooks to perform both near real-time 
 
 6. Execute all the cells in the **Real-time-scoring** notebook.
 
-7. Select the **Batch-scoring-analytical-store** notebook.
+7. After running all of the cells, **stop the session**.
+
+8. Select the **Batch-scoring-analytical-store** notebook.
 
     ![The notebook is selected.](media/notebook-batch-scoring.png "Batch-scoring-analytical-store")
 
-8. In the **Batch-scoring-analytical-store** notebook, follow the instructions to complete the remaining steps of this task. Execute all the cells in the **Batch-scoring-analytical-store** notebook.
+9. In the **Batch-scoring-analytical-store** notebook, follow the instructions to complete the remaining steps of this task. Execute all the cells in the **Batch-scoring-analytical-store** notebook.
 
     > In the cell that requires the Azure Machine Learning connection information, enter the same values you copied from the **Prepare batch scoring model** Azure ML notebook.
 
-9. If you receive an error stating "Session job is rejected because the session of the size specified cannot be allocated, due to core capacity being exceeded", then you need to stop the Spark session of the previous notebook.
+10. If you receive an error stating "Session job is rejected because the session of the size specified cannot be allocated, due to core capacity being exceeded", then you need to stop the Spark session of the previous notebook.
 
     ![The error is displayed.](media/session-job-rejected.png "Session job rejected")
 
@@ -1779,8 +1785,6 @@ In this exercise, you will use the data generator to send data to both Event Hub
    - **Name**: Enter a globally unique name (indicated by a green check mark).
    - **Location**: Select **UK South**. (If you already selected this for the first Event Hub namespace, select a US region)
    - **Pricing tier**: Select Standard.
-   - **Enable Kafka**: Unchecked
-   - **Make this namespace zone redundant**: Unchecked
    - **Throughput Units**: Set the slider all the way to the left, setting the value to 1.
    - **Enable Auto-Inflate**: Unchecked
 
